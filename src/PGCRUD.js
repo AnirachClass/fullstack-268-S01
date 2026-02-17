@@ -12,7 +12,7 @@ const app = express();
 app.use(express.json());
 
 // set db url
-const dbUrl = 'postgres://webadmin:SXEsrm45036@node71539-node267wed.proen.app.ruk-com.cloud:11739/Books'
+const dbUrl = 'postgres://webadmin:VVXayl60258@node86030-fs268-tue.proen.app.ruk-com.cloud:11680/Books'
 
 // create a connection to the database
 const sequelize = new Sequelize(dbUrl);
@@ -35,7 +35,11 @@ const Book = sequelize.define('book', {
 });
 
 // create the books table if it doesn't exist
-sequelize.sync();
+sequelize.sync().then(() => {
+  console.log('Database synced');
+}).catch(err => {
+  console.error('Database sync error:', err);
+});
 
 // route to get all books
 app.get('/books', (req, res) => {
@@ -104,4 +108,9 @@ app.delete('/books/:id', (req, res) => {
 
 // start the server
 const port = process.env.PORT || 3000;
-app.listen(port, () => console.log(`Server is running on http://localhost:${port}`));
+sequelize.sync().then(() => {
+  app.listen(port, () => console.log(`Server is running on http://localhost:${port}`));
+}).catch(err => {
+  console.error('Failed to start server:', err);
+  process.exit(1);
+});
